@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Segment Player</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .controls { margin: 10px; }
+        .playlist { list-style: none; padding: 0; }
+        .playlist li { cursor: pointer; padding: 5px; background: #ddd; margin: 5px; }
+        .playlist li:hover { background: #bbb; }
+    </style>
+        <div id="navbar"></div>
+        <script>document.addEventListener('DOMContentLoaded', () => {
+            fetch('navBar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                });
+        });</script>
+</head>
+<body>
+    <h1>Audio Segment Player</h1>
+    <audio id="audio" src="Wyatt Flores - Please Don't Go (Lyrics).mp3"></audio>
+    <p><strong>File:</strong> your-audio-file.mp3</p>
+    <p>Current Time: <span id="current-time">0:00</span></p>
+    
+    <div class="controls">
+        <button onclick="rewind()">⏪ Rewind 5s</button>
+        <button onclick="togglePlayPause()">▶️ Play</button>
+        <button onclick="forward()">⏩ Forward 5s</button>
+    </div>
+    
+    <h2>Playlist</h2>
+    <ul id="playlist" class="playlist"></ul>
+    
+    <h2>Add Segment</h2>
+    <input type="text" id="newTitle" placeholder="Segment Title">
+    <button onclick="addSegment()">➕ Add</button>
+    
+    <script>
+        const audio = document.getElementById('audio');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const playlist = document.getElementById('playlist');
+        let segments = [
+            { time: 10, title: "Introduction" },
+            { time: 30, title: "Main Topic" },
+            { time: 60, title: "Discussion" },
+            { time: 120, title: "Conclusion" }
+        ];
+
+        function updatePlaylist() {
+            playlist.innerHTML = '';
+            segments.sort((a, b) => a.time - b.time);
+            segments.forEach((segment, index) => {
+                let li = document.createElement('li');
+                li.textContent = segment.title;
+                li.onclick = () => playSegment(segment.time);
+                playlist.appendChild(li);
+            });
+        }
+
+        function playSegment(time) {
+            audio.currentTime = time;
+            audio.play();
+        }
+
+        function togglePlayPause() {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        function rewind() {
+            audio.currentTime = Math.max(0, audio.currentTime - 5);
+        }
+
+        function forward() {
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        }
+
+        function addSegment() {
+            const title = document.getElementById('newTitle').value;
+            if (!title) return alert("Enter a title");
+            segments.push({ time: audio.currentTime, title });
+            updatePlaylist();
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            currentTimeDisplay.textContent = new Date(audio.currentTime * 1000).toISOString().substr(14, 5);
+        });
+
+        updatePlaylist();
+    </script>
+</body>
+</html>
